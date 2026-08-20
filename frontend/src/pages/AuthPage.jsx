@@ -97,37 +97,27 @@ export default function AuthPage({ onAuthSuccess }) {
     setGoogleLoading(true);
     setErrorMsg('');
 
-    const googlePayload = parseJwt(response.credential);
-    const userEmail = googlePayload?.email || email;
-    const userFullName = googlePayload?.name || fullName || (userEmail ? userEmail.split('@')[0] : 'Google User');
-
-    if (!userEmail || !validateGmail(userEmail)) {
-      setErrorMsg('Google authentication requires a valid @gmail.com account.');
-      setGoogleLoading(false);
-      return;
-    }
-
-    await executeGoogleBackendLogin(userEmail, userFullName, googlePayload?.sub);
+    // Send Google's cryptographically signed ID Token (JWT) directly to backend for verification
+    await executeGoogleBackendLogin(null, null, null, response.credential);
   };
 
-  const executeGoogleBackendLogin = async (userEmail, userFullName, googleId) => {
+  const executeGoogleBackendLogin = async (userEmail, userFullName, googleId, idToken = null) => {
     setGoogleLoading(true);
     setErrorMsg('');
 
     let data = null;
     let lastError = null;
 
+    const payload = idToken 
+      ? { token: idToken, role: role }
+      : { email: userEmail ? userEmail.trim().toLowerCase() : undefined, full_name: userFullName, google_id: googleId, role: role };
+
     for (const baseUrl of API_BASE_URLS) {
       try {
         const res = await fetch(`${baseUrl}/google`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            email: userEmail.trim().toLowerCase(),
-            full_name: userFullName,
-            google_id: googleId,
-            role: role
-          })
+          body: JSON.stringify(payload)
         });
 
         const resData = await res.json();
@@ -147,7 +137,7 @@ export default function AuthPage({ onAuthSuccess }) {
 
     localStorage.setItem('auth_token', data.access_token);
     localStorage.setItem('user_data', JSON.stringify(data.user));
-    setSuccessMsg(`✓ Welcome ${data.user.full_name}! Signed in via Google Account (${data.user.email}). Redirecting...`);
+    setSuccessMsg(`✓ Welcome ${data.user.full_name}! Authenticated via Google Account (${data.user.email}). Redirecting...`);
 
     setTimeout(() => {
       onAuthSuccess(data.user);

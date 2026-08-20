@@ -151,28 +151,68 @@ def get_me(current_user: models.User = Depends(get_current_user)):
     return current_user
 
 class GoogleAuthRequest(BaseModel):
-    email: EmailStr
+    token: Optional[str] = None
+    email: Optional[EmailStr] = None
     full_name: Optional[str] = None
     google_id: Optional[str] = None
     role: str = "user"
 
+def decode_google_id_token(id_token_str: str) -> dict:
+    try:
+        # Decode unverified claims from Google ID Token JWT
+        claims = jwt.get_unverified_claims(id_token_str)
+        return claims
+    except Exception:
+        # Fallback to standard base64 URL decoding
+        try:
+            import base64
+            import json
+            parts = id_token_str.split('.')
+            if len(parts) >= 2:
+                padded = parts[1] + '=' * (-len(parts[1]) % 4)
+                decoded_bytes = base64.urlsafe_b64decode(padded)
+                return json.loads(decoded_bytes.decode('utf-8'))
+        except Exception:
+            pass
+    return {}
+
 @router.post("/google", response_model=Token)
 def google_auth(payload: GoogleAuthRequest, db: Session = Depends(get_db)):
-    clean_email = payload.email.strip().lower()
-    
-    if not clean_email.endswith("@gmail.com"):
+    clean_email = None
+    display_name = None
+    g_id = None
+
+    # Step 1: If Google ID Token is provided by Google Identity Services GSI
+    if payload.token:
+        claims = decode_google_id_token(payload.token)
+        clean_email = claims.get("email", "").strip().lower()
+        display_name = claims.get("name") or claims.get("given_name")
+        g_id = claims.get("sub")
+
+    # Step 2: Fallback to direct parameters if token parsing wasn't used
+    if not clean_email and payload.email:
+        clean_email = payload.email.strip().lower()
+        display_name = payload.full_name
+        g_id = payload.google_id
+
+    if not clean_email or not clean_email.endswith("@gmail.com"):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Google Single Sign-On requires a valid @gmail.com email address."
         )
 
+    # Step 3: Check database for existing user
     user = db.query(models.User).filter(models.User.email == clean_email).first()
+
+    # Step 4: Create new user if account doesn't exist
     if not user:
-        display_name = payload.full_name.strip() if (payload.full_name and payload.full_name.strip()) else clean_email.split('@')[0].replace('.', ' ').title()
+        if not display_name or not display_name.strip():
+            display_name = clean_email.split('@')[0].replace('.', ' ').title()
+
         dummy_pwd = hash_password(secrets.token_hex(16))
         user_role = payload.role if payload.role in ["user", "recruiter"] else "user"
         user = models.User(
-            full_name=display_name,
+            full_name=display_name.strip(),
             email=clean_email,
             hashed_password=dummy_pwd,
             role=user_role
@@ -181,11 +221,13 @@ def google_auth(payload: GoogleAuthRequest, db: Session = Depends(get_db)):
         db.commit()
         db.refresh(user)
 
+    # Step 5: Issue app session JWT token
     token = create_access_token(data={"sub": user.email})
     return {
         "access_token": token,
         "token_type": "bearer",
         "user": user
     }
+
 
 
