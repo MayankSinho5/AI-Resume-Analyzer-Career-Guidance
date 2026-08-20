@@ -25,6 +25,8 @@ export default function AuthPage({ onAuthSuccess }) {
 
   // Google SSO Modal Window State
   const [showGoogleModal, setShowGoogleModal] = useState(false);
+  const [googleStep, setGoogleStep] = useState(1); // 1 = Choose Account, 2 = Sign In Consent
+  const [showAnotherInput, setShowAnotherInput] = useState(false);
   const [googleEmailInput, setGoogleEmailInput] = useState('');
   const [googleLoading, setGoogleLoading] = useState(false);
   const [googleError, setGoogleError] = useState('');
@@ -50,6 +52,8 @@ export default function AuthPage({ onAuthSuccess }) {
   const handleGoogleCustomButtonClick = () => {
     setErrorMsg('');
     setGoogleError('');
+    setGoogleStep(1);
+    setShowAnotherInput(false);
     setGoogleEmailInput(email && validateGmail(email) ? email.trim().toLowerCase() : 'pariharmayank978@gmail.com');
     setShowGoogleModal(true);
   };
@@ -691,7 +695,7 @@ export default function AuthPage({ onAuthSuccess }) {
         </div>
       </div>
 
-      {/* Google Account Selector Modal Window */}
+      {/* Mobbin-Style 2-Step Google OAuth Modal Window */}
       {showGoogleModal && (
         <div style={{
           position: 'fixed',
@@ -707,16 +711,20 @@ export default function AuthPage({ onAuthSuccess }) {
         }}>
           <div className="glass-card animate-modal-pop" style={{
             width: '100%',
-            maxWidth: '430px',
-            padding: '32px',
-            position: 'relative'
+            maxWidth: '460px',
+            padding: '36px',
+            position: 'relative',
+            background: '#0F172A',
+            border: '1px solid rgba(255, 255, 255, 0.12)',
+            borderRadius: '20px',
+            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.7)'
           }}>
             <button
               onClick={() => setShowGoogleModal(false)}
               style={{
                 position: 'absolute',
-                top: '16px',
-                right: '16px',
+                top: '20px',
+                right: '20px',
                 background: 'none',
                 border: 'none',
                 color: '#64748B',
@@ -727,124 +735,258 @@ export default function AuthPage({ onAuthSuccess }) {
               <X size={20} />
             </button>
 
-            {/* Google Header Branding */}
-            <div style={{ textAlign: 'center', marginBottom: '24px' }}>
-              <div style={{
-                width: '52px',
-                height: '52px',
-                borderRadius: '50%',
-                background: 'rgba(255, 255, 255, 0.06)',
-                border: '1px solid rgba(255, 255, 255, 0.12)',
-                display: 'inline-flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                marginBottom: '12px'
-              }}>
-                <svg width="28" height="28" viewBox="0 0 24 24">
-                  <path fill="#EA4335" d="M12 5c1.6 0 3 .6 4.1 1.6l3.1-3.1C17.3 1.7 14.8 1 12 1 7.4 1 3.5 3.6 1.6 7.4l3.7 2.9C6.2 7.4 8.9 5 12 5z" />
-                  <path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.6-.2-2.3H12v4.5h6.5c-.3 1.5-1.1 2.8-2.4 3.7l3.7 2.9c2.2-2 3.7-5 3.7-8.8z" />
-                  <path fill="#FBBC05" d="M5.3 14.7c-.2-.7-.4-1.5-.4-2.3s.2-1.6.4-2.3L1.6 7.2C.6 9.2 0 11.5 0 14s.6 4.8 1.6 6.8l3.7-2.9z" />
-                  <path fill="#34A853" d="M12 23c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3.1 0-5.8-2.4-6.7-5.3L1.6 16C3.5 19.8 7.4 23 12 23z" />
-                </svg>
-              </div>
-              <h3 style={{ fontSize: '1.25rem', fontWeight: '700', color: '#FFFFFF', marginBottom: '4px' }}>
-                Sign in with Google
-              </h3>
-              <p style={{ fontSize: '0.82rem', color: '#94A3B8' }}>
-                Choose an account to continue to <strong>CareerAI</strong>
-              </p>
+            {/* Google Brand Header */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '24px' }}>
+              <svg width="22" height="22" viewBox="0 0 24 24">
+                <path fill="#EA4335" d="M12 5c1.6 0 3 .6 4.1 1.6l3.1-3.1C17.3 1.7 14.8 1 12 1 7.4 1 3.5 3.6 1.6 7.4l3.7 2.9C6.2 7.4 8.9 5 12 5z" />
+                <path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.6-.2-2.3H12v4.5h6.5c-.3 1.5-1.1 2.8-2.4 3.7l3.7 2.9c2.2-2 3.7-5 3.7-8.8z" />
+                <path fill="#FBBC05" d="M5.3 14.7c-.2-.7-.4-1.5-.4-2.3s.2-1.6.4-2.3L1.6 7.2C.6 9.2 0 11.5 0 14s.6 4.8 1.6 6.8l3.7-2.9z" />
+                <path fill="#34A853" d="M12 23c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3.1 0-5.8-2.4-6.7-5.3L1.6 16C3.5 19.8 7.4 23 12 23z" />
+              </svg>
+              <span style={{ color: '#E2E8F0', fontSize: '0.9rem', fontWeight: '600' }}>Sign in with Google</span>
             </div>
 
             {googleError && (
-              <div className="alert-error" style={{ marginBottom: '16px' }}>
+              <div className="alert-error" style={{ marginBottom: '20px' }}>
                 <AlertCircle size={16} />
                 <span>{googleError}</span>
               </div>
             )}
 
-            {/* Active Google Account Card */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '20px' }}>
-              <button
-                type="button"
-                onClick={() => executeGoogleBackendLogin(googleEmailInput || 'pariharmayank978@gmail.com', 'Mayank Parihar', 'g_sub_109823')}
-                disabled={googleLoading}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '14px',
-                  padding: '14px',
-                  borderRadius: '14px',
-                  border: '1px solid rgba(99, 102, 241, 0.4)',
-                  background: 'rgba(99, 102, 241, 0.15)',
-                  color: '#FFFFFF',
-                  textAlign: 'left',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s ease'
-                }}
-              >
-                <div style={{
-                  width: '42px',
-                  height: '42px',
-                  borderRadius: '50%',
-                  background: 'linear-gradient(135deg, #10B981, #059669)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: '#FFFFFF',
-                  fontWeight: '700',
-                  fontSize: '1.1rem',
-                  flexShrink: 0
-                }}>
-                  {(googleEmailInput || 'Mayank')[0].toUpperCase()}
-                </div>
-                <div style={{ flex: 1, overflow: 'hidden' }}>
-                  <div style={{ fontWeight: '700', fontSize: '0.92rem', color: '#FFFFFF', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                    {googleEmailInput ? googleEmailInput.split('@')[0].replace('.', ' ').toUpperCase() : 'Mayank Parihar'}
+            {/* STEP 1: CHOOSE AN ACCOUNT (MOBBIN SCREEN 2) */}
+            {googleStep === 1 && (
+              <div>
+                <div style={{ display: 'flex', gap: '20px', alignItems: 'flex-start', marginBottom: '28px' }}>
+                  <div style={{
+                    width: '54px',
+                    height: '54px',
+                    borderRadius: '16px',
+                    background: 'linear-gradient(135deg, #6366F1, #8B5CF6)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: '#FFFFFF',
+                    flexShrink: 0
+                  }}>
+                    <Sparkles size={28} />
                   </div>
-                  <div style={{ fontSize: '0.82rem', color: '#A5B4FC', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                    {googleEmailInput || 'pariharmayank978@gmail.com'}
+                  <div>
+                    <h3 style={{ fontSize: '1.6rem', fontWeight: '800', color: '#FFFFFF', lineHeight: '1.2', marginBottom: '6px' }}>
+                      Choose an account
+                    </h3>
+                    <p style={{ fontSize: '0.9rem', color: '#94A3B8' }}>
+                      to continue to <strong style={{ color: '#818CF8' }}>CareerAI</strong>
+                    </p>
                   </div>
                 </div>
-                <div style={{
-                  width: '22px',
-                  height: '22px',
-                  borderRadius: '50%',
-                  background: '#10B981',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: '#FFFFFF'
-                }}>
-                  ✓
-                </div>
-              </button>
-            </div>
 
-            {/* Custom Google Email Input */}
-            <div className="form-group" style={{ marginBottom: '20px' }}>
-              <label className="form-label" style={{ fontSize: '0.78rem' }}>Or enter another @gmail.com address</label>
-              <div style={{ position: 'relative' }}>
-                <Mail size={18} color="#64748B" style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)' }} />
-                <input
-                  type="email"
-                  placeholder="name@gmail.com"
-                  value={googleEmailInput}
-                  onChange={(e) => setGoogleEmailInput(e.target.value)}
-                  className="input-field"
-                  style={{ paddingLeft: '46px' }}
-                />
+                {/* Account Item */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '24px' }}>
+                  <button
+                    type="button"
+                    onClick={() => setGoogleStep(2)}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '14px',
+                      padding: '16px',
+                      borderRadius: '14px',
+                      border: '1px solid rgba(255, 255, 255, 0.1)',
+                      background: 'rgba(255, 255, 255, 0.03)',
+                      color: '#FFFFFF',
+                      textAlign: 'left',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s ease'
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.07)'}
+                    onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.03)'}
+                  >
+                    <div style={{
+                      width: '42px',
+                      height: '42px',
+                      borderRadius: '50%',
+                      background: '#10B981',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: '#FFFFFF',
+                      fontWeight: '700',
+                      fontSize: '1.1rem',
+                      flexShrink: 0
+                    }}>
+                      {(googleEmailInput || 'M')[0].toUpperCase()}
+                    </div>
+                    <div style={{ flex: 1, overflow: 'hidden' }}>
+                      <div style={{ fontWeight: '700', fontSize: '0.95rem', color: '#FFFFFF' }}>
+                        {googleEmailInput ? googleEmailInput.split('@')[0].replace('.', ' ').replace(/(^\w|\s\w)/g, m => m.toUpperCase()) : 'Mayank Parihar'}
+                      </div>
+                      <div style={{ fontSize: '0.85rem', color: '#94A3B8' }}>
+                        {googleEmailInput || 'pariharmayank978@gmail.com'}
+                      </div>
+                    </div>
+                  </button>
+
+                  {/* Use another account option */}
+                  {!showAnotherInput ? (
+                    <button
+                      type="button"
+                      onClick={() => setShowAnotherInput(true)}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '14px',
+                        padding: '14px 16px',
+                        borderRadius: '14px',
+                        border: '1px border transparent',
+                        background: 'transparent',
+                        color: '#94A3B8',
+                        fontSize: '0.88rem',
+                        fontWeight: '600',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      <User size={18} />
+                      <span>Use another account</span>
+                    </button>
+                  ) : (
+                    <div style={{ marginTop: '10px' }}>
+                      <div style={{ position: 'relative', marginBottom: '10px' }}>
+                        <Mail size={18} color="#64748B" style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)' }} />
+                        <input
+                          type="email"
+                          placeholder="another.account@gmail.com"
+                          value={googleEmailInput}
+                          onChange={(e) => setGoogleEmailInput(e.target.value)}
+                          className="input-field"
+                          style={{ paddingLeft: '46px' }}
+                          autoFocus
+                        />
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (validateGmail(googleEmailInput)) {
+                            setGoogleStep(2);
+                          } else {
+                            setGoogleError('Please enter a valid @gmail.com address.');
+                          }
+                        }}
+                        className="btn-primary"
+                        style={{ width: '100%', padding: '10px' }}
+                      >
+                        Proceed with Account
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                <p style={{ fontSize: '0.78rem', color: '#64748B', lineHeight: '1.5' }}>
+                  Before using this app, you can review CareerAI's <a href="#" style={{ color: '#818CF8' }}>Privacy Policy</a> and <a href="#" style={{ color: '#818CF8' }}>Terms of Service</a>.
+                </p>
               </div>
-            </div>
+            )}
 
-            <button
-              type="button"
-              disabled={googleLoading || !googleEmailInput.trim()}
-              onClick={() => executeGoogleBackendLogin(googleEmailInput, googleEmailInput.split('@')[0], 'g_sub_1098')}
-              className="btn-primary"
-              style={{ width: '100%', padding: '12px' }}
-            >
-              {googleLoading ? 'Verifying Google Account...' : 'Confirm & Continue with Google'}
-            </button>
+            {/* STEP 2: CONSENT PERMISSIONS & SIGN IN (MOBBIN SCREEN 3) */}
+            {googleStep === 2 && (
+              <div>
+                <div style={{ display: 'flex', gap: '20px', alignItems: 'flex-start', marginBottom: '24px' }}>
+                  <div style={{
+                    width: '54px',
+                    height: '54px',
+                    borderRadius: '16px',
+                    background: 'linear-gradient(135deg, #6366F1, #8B5CF6)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: '#FFFFFF',
+                    flexShrink: 0
+                  }}>
+                    <Sparkles size={28} />
+                  </div>
+                  <div>
+                    <h3 style={{ fontSize: '1.6rem', fontWeight: '800', color: '#FFFFFF', lineHeight: '1.2', marginBottom: '8px' }}>
+                      Sign in to CareerAI
+                    </h3>
+                    <div style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      padding: '4px 12px',
+                      borderRadius: '20px',
+                      background: 'rgba(255, 255, 255, 0.08)',
+                      border: '1px solid rgba(255, 255, 255, 0.12)',
+                      color: '#E2E8F0',
+                      fontSize: '0.82rem'
+                    }}>
+                      <div style={{ width: '18px', height: '18px', borderRadius: '50%', background: '#10B981', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem', fontWeight: '700' }}>
+                        {(googleEmailInput || 'M')[0].toUpperCase()}
+                      </div>
+                      <span>{googleEmailInput || 'pariharmayank978@gmail.com'}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div style={{ marginBottom: '24px' }}>
+                  <h4 style={{ fontSize: '0.95rem', fontWeight: '700', color: '#FFFFFF', marginBottom: '14px' }}>
+                    Google will allow CareerAI to access this info about you
+                  </h4>
+
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                      <User size={20} color="#818CF8" style={{ marginTop: '2px' }} />
+                      <div>
+                        <div style={{ fontWeight: '700', fontSize: '0.9rem', color: '#E2E8F0' }}>
+                          {googleEmailInput ? googleEmailInput.split('@')[0].replace('.', ' ').replace(/(^\w|\s\w)/g, m => m.toUpperCase()) : 'Mayank Parihar'}
+                        </div>
+                        <div style={{ fontSize: '0.8rem', color: '#94A3B8' }}>Name and profile picture</div>
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                      <Mail size={20} color="#818CF8" style={{ marginTop: '2px' }} />
+                      <div>
+                        <div style={{ fontWeight: '700', fontSize: '0.9rem', color: '#E2E8F0' }}>
+                          {googleEmailInput || 'pariharmayank978@gmail.com'}
+                        </div>
+                        <div style={{ fontSize: '0.8rem', color: '#94A3B8' }}>Email address</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <p style={{ fontSize: '0.78rem', color: '#64748B', lineHeight: '1.5', marginBottom: '28px' }}>
+                  Review CareerAI's <a href="#" style={{ color: '#818CF8' }}>Privacy Policy</a> and <a href="#" style={{ color: '#818CF8' }}>Terms of Service</a> to understand how CareerAI will process and protect your data.
+                </p>
+
+                <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
+                  <button
+                    type="button"
+                    onClick={() => setGoogleStep(1)}
+                    style={{
+                      padding: '10px 20px',
+                      borderRadius: '30px',
+                      border: '1px solid rgba(255, 255, 255, 0.15)',
+                      background: 'transparent',
+                      color: '#CBD5E1',
+                      fontSize: '0.9rem',
+                      fontWeight: '600',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    disabled={googleLoading}
+                    onClick={() => executeGoogleBackendLogin(googleEmailInput || 'pariharmayank978@gmail.com', 'Mayank Parihar', 'g_sub_109823')}
+                    className="btn-primary"
+                    style={{ padding: '10px 24px', borderRadius: '30px', fontSize: '0.9rem' }}
+                  >
+                    {googleLoading ? 'Signing in...' : 'Continue'}
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}
