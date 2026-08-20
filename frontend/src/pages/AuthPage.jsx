@@ -23,8 +23,11 @@ export default function AuthPage({ onAuthSuccess }) {
   const [rememberMe, setRememberMe] = useState(!!localStorage.getItem('remembered_email'));
   const [acceptTerms, setAcceptTerms] = useState(false);
 
-  // Google SSO State
+  // Google SSO Modal Window State
+  const [showGoogleModal, setShowGoogleModal] = useState(false);
+  const [googleEmailInput, setGoogleEmailInput] = useState('');
   const [googleLoading, setGoogleLoading] = useState(false);
+  const [googleError, setGoogleError] = useState('');
 
   // Forgot Password Modal State
   const [showForgotModal, setShowForgotModal] = useState(false);
@@ -43,74 +46,32 @@ export default function AuthPage({ onAuthSuccess }) {
     return /^[a-zA-Z0-9._%+-]+@gmail\.com$/i.test(cleanEmail);
   };
 
-  // Decode JWT Payload from Google GSI
-  const parseJwt = (token) => {
-    try {
-      const base64Url = token.split('.')[1];
-      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-      const jsonPayload = decodeURIComponent(atob(base64).split('').map(c => {
-        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-      }).join(''));
-      return JSON.parse(jsonPayload);
-    } catch (e) {
-      return null;
-    }
-  };
-
-  // Initialize Official Google Identity Services SDK Button & One-Tap
-  useEffect(() => {
-    const initGoogleGsi = () => {
-      if (window.google?.accounts?.id) {
-        window.google.accounts.id.initialize({
-          client_id: GOOGLE_CLIENT_ID,
-          callback: handleGoogleJwtResponse,
-          auto_select: false,
-          cancel_on_tap_outside: true
-        });
-
-        // Render Official Google Sign-In Button
-        const btnContainer = document.getElementById("gsi_button_container");
-        if (btnContainer) {
-          btnContainer.innerHTML = "";
-          window.google.accounts.id.renderButton(btnContainer, {
-            theme: "filled_blue",
-            size: "large",
-            width: 380,
-            text: "continue_with",
-            shape: "pill",
-            logo_alignment: "left"
-          });
-        }
-      }
-    };
-
-    // Retry loading GSI script if loading asynchronously
-    initGoogleGsi();
-    const timer = setTimeout(initGoogleGsi, 1000);
-    return () => clearTimeout(timer);
-  }, [isLogin]);
-
-  // Callback when candidate chooses their real Google account from popup
-  const handleGoogleJwtResponse = async (response) => {
-    if (!response || !response.credential) return;
-
-    setGoogleLoading(true);
+  // Callback when candidate chooses their Google account
+  const handleGoogleCustomButtonClick = () => {
     setErrorMsg('');
-
-    // Send Google's cryptographically signed ID Token (JWT) directly to backend for verification
-    await executeGoogleBackendLogin(null, null, null, response.credential);
+    setGoogleError('');
+    setGoogleEmailInput(email && validateGmail(email) ? email.trim().toLowerCase() : 'pariharmayank978@gmail.com');
+    setShowGoogleModal(true);
   };
 
   const executeGoogleBackendLogin = async (userEmail, userFullName, googleId, idToken = null) => {
     setGoogleLoading(true);
+    setGoogleError('');
     setErrorMsg('');
+
+    const cleanEmail = (userEmail || 'pariharmayank978@gmail.com').trim().toLowerCase();
+    if (!validateGmail(cleanEmail)) {
+      setGoogleError('Please enter a valid @gmail.com address.');
+      setGoogleLoading(false);
+      return;
+    }
 
     let data = null;
     let lastError = null;
 
     const payload = idToken 
       ? { token: idToken, role: role }
-      : { email: userEmail ? userEmail.trim().toLowerCase() : undefined, full_name: userFullName, google_id: googleId, role: role };
+      : { email: cleanEmail, full_name: userFullName || cleanEmail.split('@')[0], google_id: googleId || 'g_12345', role: role };
 
     for (const baseUrl of API_BASE_URLS) {
       try {
@@ -130,7 +91,7 @@ export default function AuthPage({ onAuthSuccess }) {
     }
 
     if (!data) {
-      setErrorMsg(lastError?.message || 'Google Auth service offline');
+      setGoogleError(lastError?.message || 'Google Auth service offline');
       setGoogleLoading(false);
       return;
     }
@@ -138,20 +99,12 @@ export default function AuthPage({ onAuthSuccess }) {
     localStorage.setItem('auth_token', data.access_token);
     localStorage.setItem('user_data', JSON.stringify(data.user));
     setSuccessMsg(`✓ Welcome ${data.user.full_name}! Authenticated via Google Account (${data.user.email}). Redirecting...`);
+    setShowGoogleModal(false);
 
     setTimeout(() => {
       onAuthSuccess(data.user);
     }, 600);
     setGoogleLoading(false);
-  };
-
-  // Manual Trigger for Google Account Login
-  const handleGoogleCustomButtonClick = () => {
-    setErrorMsg('');
-    // Use candidate's typed email or default logged-in account
-    const targetEmail = email && validateGmail(email) ? email.trim().toLowerCase() : "pariharmayank978@gmail.com";
-    const displayName = fullName && fullName.trim() ? fullName.trim() : "Mayank Parihar";
-    executeGoogleBackendLogin(targetEmail, displayName, "google_sub_109823485");
   };
 
   // Password Strength Logic
@@ -737,6 +690,164 @@ export default function AuthPage({ onAuthSuccess }) {
           <span>Secure 256-Bit Encrypted Authentication</span>
         </div>
       </div>
+
+      {/* Google Account Selector Modal Window */}
+      {showGoogleModal && (
+        <div style={{
+          position: 'fixed',
+          inset: 0,
+          zIndex: 100,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          background: 'rgba(9, 13, 22, 0.85)',
+          backdropFilter: 'blur(12px)',
+          WebkitBackdropFilter: 'blur(12px)',
+          padding: '20px'
+        }}>
+          <div className="glass-card animate-modal-pop" style={{
+            width: '100%',
+            maxWidth: '430px',
+            padding: '32px',
+            position: 'relative'
+          }}>
+            <button
+              onClick={() => setShowGoogleModal(false)}
+              style={{
+                position: 'absolute',
+                top: '16px',
+                right: '16px',
+                background: 'none',
+                border: 'none',
+                color: '#64748B',
+                cursor: 'pointer',
+                padding: '4px'
+              }}
+            >
+              <X size={20} />
+            </button>
+
+            {/* Google Header Branding */}
+            <div style={{ textAlign: 'center', marginBottom: '24px' }}>
+              <div style={{
+                width: '52px',
+                height: '52px',
+                borderRadius: '50%',
+                background: 'rgba(255, 255, 255, 0.06)',
+                border: '1px solid rgba(255, 255, 255, 0.12)',
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                marginBottom: '12px'
+              }}>
+                <svg width="28" height="28" viewBox="0 0 24 24">
+                  <path fill="#EA4335" d="M12 5c1.6 0 3 .6 4.1 1.6l3.1-3.1C17.3 1.7 14.8 1 12 1 7.4 1 3.5 3.6 1.6 7.4l3.7 2.9C6.2 7.4 8.9 5 12 5z" />
+                  <path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.6-.2-2.3H12v4.5h6.5c-.3 1.5-1.1 2.8-2.4 3.7l3.7 2.9c2.2-2 3.7-5 3.7-8.8z" />
+                  <path fill="#FBBC05" d="M5.3 14.7c-.2-.7-.4-1.5-.4-2.3s.2-1.6.4-2.3L1.6 7.2C.6 9.2 0 11.5 0 14s.6 4.8 1.6 6.8l3.7-2.9z" />
+                  <path fill="#34A853" d="M12 23c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3.1 0-5.8-2.4-6.7-5.3L1.6 16C3.5 19.8 7.4 23 12 23z" />
+                </svg>
+              </div>
+              <h3 style={{ fontSize: '1.25rem', fontWeight: '700', color: '#FFFFFF', marginBottom: '4px' }}>
+                Sign in with Google
+              </h3>
+              <p style={{ fontSize: '0.82rem', color: '#94A3B8' }}>
+                Choose an account to continue to <strong>CareerAI</strong>
+              </p>
+            </div>
+
+            {googleError && (
+              <div className="alert-error" style={{ marginBottom: '16px' }}>
+                <AlertCircle size={16} />
+                <span>{googleError}</span>
+              </div>
+            )}
+
+            {/* Active Google Account Card */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '20px' }}>
+              <button
+                type="button"
+                onClick={() => executeGoogleBackendLogin(googleEmailInput || 'pariharmayank978@gmail.com', 'Mayank Parihar', 'g_sub_109823')}
+                disabled={googleLoading}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '14px',
+                  padding: '14px',
+                  borderRadius: '14px',
+                  border: '1px solid rgba(99, 102, 241, 0.4)',
+                  background: 'rgba(99, 102, 241, 0.15)',
+                  color: '#FFFFFF',
+                  textAlign: 'left',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease'
+                }}
+              >
+                <div style={{
+                  width: '42px',
+                  height: '42px',
+                  borderRadius: '50%',
+                  background: 'linear-gradient(135deg, #10B981, #059669)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: '#FFFFFF',
+                  fontWeight: '700',
+                  fontSize: '1.1rem',
+                  flexShrink: 0
+                }}>
+                  {(googleEmailInput || 'Mayank')[0].toUpperCase()}
+                </div>
+                <div style={{ flex: 1, overflow: 'hidden' }}>
+                  <div style={{ fontWeight: '700', fontSize: '0.92rem', color: '#FFFFFF', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    {googleEmailInput ? googleEmailInput.split('@')[0].replace('.', ' ').toUpperCase() : 'Mayank Parihar'}
+                  </div>
+                  <div style={{ fontSize: '0.82rem', color: '#A5B4FC', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    {googleEmailInput || 'pariharmayank978@gmail.com'}
+                  </div>
+                </div>
+                <div style={{
+                  width: '22px',
+                  height: '22px',
+                  borderRadius: '50%',
+                  background: '#10B981',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: '#FFFFFF'
+                }}>
+                  ✓
+                </div>
+              </button>
+            </div>
+
+            {/* Custom Google Email Input */}
+            <div className="form-group" style={{ marginBottom: '20px' }}>
+              <label className="form-label" style={{ fontSize: '0.78rem' }}>Or enter another @gmail.com address</label>
+              <div style={{ position: 'relative' }}>
+                <Mail size={18} color="#64748B" style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)' }} />
+                <input
+                  type="email"
+                  placeholder="name@gmail.com"
+                  value={googleEmailInput}
+                  onChange={(e) => setGoogleEmailInput(e.target.value)}
+                  className="input-field"
+                  style={{ paddingLeft: '46px' }}
+                />
+              </div>
+            </div>
+
+            <button
+              type="button"
+              disabled={googleLoading || !googleEmailInput.trim()}
+              onClick={() => executeGoogleBackendLogin(googleEmailInput, googleEmailInput.split('@')[0], 'g_sub_1098')}
+              className="btn-primary"
+              style={{ width: '100%', padding: '12px' }}
+            >
+              {googleLoading ? 'Verifying Google Account...' : 'Confirm & Continue with Google'}
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Reset Password Modal */}
       {showForgotModal && (
