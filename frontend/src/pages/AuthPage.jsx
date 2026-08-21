@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { 
   Mail, Lock, User, Eye, EyeOff, Sparkles, ArrowRight, 
   ShieldCheck, CheckCircle2, AlertCircle, KeyRound, 
-  Briefcase, UserCheck, X, Scan, FileText, Check, Award
+  Briefcase, UserCheck, X, FileText, Target, Award,
+  TrendingUp, Layers, Check, LayoutDashboard, Compass
 } from 'lucide-react';
 
 const API_BASE_URLS = ['http://localhost:8000/api/auth', 'http://127.0.0.1:8000/api/auth'];
@@ -12,16 +13,6 @@ export default function AuthPage({ onAuthSuccess }) {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-
-  // Live Animated Laser Scan ATS Score Meter
-  const [scanScore, setScanScore] = useState(0);
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setScanScore((prev) => (prev >= 96 ? 45 : prev + 3));
-    }, 120);
-    return () => clearInterval(timer);
-  }, []);
 
   // Form State
   const [fullName, setFullName] = useState('');
@@ -182,433 +173,396 @@ export default function AuthPage({ onAuthSuccess }) {
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      padding: '30px 20px',
+      padding: '40px 20px',
       position: 'relative',
       overflow: 'hidden',
-      background: '#070A10'
+      background: '#07090E'
     }}>
 
-      {/* Laser beam animation */}
-      <style>{`
-        @keyframes laserScan {
-          0% { top: 10%; opacity: 0.3; }
-          50% { top: 85%; opacity: 1; }
-          100% { top: 10%; opacity: 0.3; }
-        }
-      `}</style>
-
-      {/* FINAL PRODUCTION CONTAINER */}
+      {/* CONCEPT 5: BACKGROUND LIVE DASHBOARD CANVAS PREVIEW (BLURRED APP WORKSPACE) */}
       <div style={{
-        width: '100%',
-        maxWidth: '1060px',
-        minHeight: '620px',
-        display: 'grid',
-        gridTemplateColumns: '1fr 1fr',
-        borderRadius: '26px',
+        position: 'absolute',
+        inset: '20px',
+        borderRadius: '24px',
+        border: '1px solid rgba(255, 255, 255, 0.06)',
+        background: '#0B0F19',
         overflow: 'hidden',
-        boxShadow: '0 25px 70px -15px rgba(0, 0, 0, 0.9), 0 0 35px rgba(52, 211, 153, 0.15)',
-        border: '1px solid rgba(52, 211, 153, 0.25)',
+        filter: 'blur(7px) brightness(0.65)',
+        pointerEvents: 'none',
+        userSelect: 'none',
+        display: 'flex',
+        flexDirection: 'column',
+        opacity: 0.85
+      }}>
+        {/* Mock Top Navbar */}
+        <div style={{ height: '60px', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', padding: '0 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'rgba(15, 23, 42, 0.8)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#818CF8', fontWeight: '800', fontSize: '1.1rem' }}>
+            <Sparkles size={20} /> CareerAI Dashboard
+          </div>
+          <div style={{ display: 'flex', gap: '20px', color: '#64748B', fontSize: '0.85rem' }}>
+            <span style={{ color: '#818CF8', fontWeight: '600' }}>ATS Scorer</span>
+            <span>Job Matcher</span>
+            <span>Interview Simulator</span>
+            <span>Career Roadmap</span>
+          </div>
+        </div>
+
+        {/* Mock App Body Content Grid */}
+        <div style={{ display: 'grid', gridTemplateColumns: '260px 1fr', flex: 1, padding: '24px', gap: '24px' }}>
+          {/* Mock Left Sidebar */}
+          <div style={{ background: 'rgba(15, 23, 42, 0.6)', borderRadius: '16px', padding: '20px', border: '1px solid rgba(255, 255, 255, 0.05)' }}>
+            <div style={{ width: '60px', height: '60px', borderRadius: '50%', background: 'linear-gradient(135deg, #6366F1, #8B5CF6)', marginBottom: '16px' }}></div>
+            <div style={{ height: '14px', width: '120px', background: 'rgba(255, 255, 255, 0.2)', borderRadius: '6px', marginBottom: '8px' }}></div>
+            <div style={{ height: '10px', width: '80px', background: 'rgba(255, 255, 255, 0.1)', borderRadius: '4px', marginBottom: '24px' }}></div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <div style={{ height: '36px', background: 'rgba(99, 102, 241, 0.2)', borderRadius: '10px' }}></div>
+              <div style={{ height: '36px', background: 'rgba(255, 255, 255, 0.05)', borderRadius: '10px' }}></div>
+              <div style={{ height: '36px', background: 'rgba(255, 255, 255, 0.05)', borderRadius: '10px' }}></div>
+            </div>
+          </div>
+
+          {/* Mock Main Dashboard Section */}
+          <div style={{ display: 'grid', gridTemplateRows: 'auto 1fr', gap: '20px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px' }}>
+              <div style={{ background: 'rgba(15, 23, 42, 0.7)', padding: '20px', borderRadius: '16px', border: '1px solid rgba(255, 255, 255, 0.05)' }}>
+                <div style={{ fontSize: '0.8rem', color: '#94A3B8' }}>ATS Match Score</div>
+                <div style={{ fontSize: '1.8rem', fontWeight: '800', color: '#34D399', marginTop: '4px' }}>92 / 100</div>
+              </div>
+              <div style={{ background: 'rgba(15, 23, 42, 0.7)', padding: '20px', borderRadius: '16px', border: '1px solid rgba(255, 255, 255, 0.05)' }}>
+                <div style={{ fontSize: '0.8rem', color: '#94A3B8' }}>Interview Readiness</div>
+                <div style={{ fontSize: '1.8rem', fontWeight: '800', color: '#818CF8', marginTop: '4px' }}>88% High</div>
+              </div>
+              <div style={{ background: 'rgba(15, 23, 42, 0.7)', padding: '20px', borderRadius: '16px', border: '1px solid rgba(255, 255, 255, 0.05)' }}>
+                <div style={{ fontSize: '0.8rem', color: '#94A3B8' }}>Matched Roles</div>
+                <div style={{ fontSize: '1.8rem', fontWeight: '800', color: '#FBBF24', marginTop: '4px' }}>14 Tech Jobs</div>
+              </div>
+            </div>
+
+            <div style={{ background: 'rgba(15, 23, 42, 0.7)', borderRadius: '16px', border: '1px solid rgba(255, 255, 255, 0.05)', padding: '24px' }}>
+              <div style={{ height: '20px', width: '200px', background: 'rgba(255, 255, 255, 0.15)', borderRadius: '6px', marginBottom: '16px' }}></div>
+              <div style={{ height: '140px', background: 'rgba(255, 255, 255, 0.03)', borderRadius: '12px' }}></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* CONCEPT 5: CENTERED FLOATING CRISP AUTH DIALOG */}
+      <div className="animate-fade-in" style={{
+        width: '100%',
+        maxWidth: '460px',
+        padding: '40px 36px',
+        borderRadius: '26px',
+        background: 'rgba(13, 17, 28, 0.94)',
+        backdropFilter: 'blur(24px)',
+        WebkitBackdropFilter: 'blur(24px)',
+        border: '1px solid rgba(255, 255, 255, 0.12)',
+        boxShadow: '0 30px 80px -15px rgba(0, 0, 0, 0.9), 0 0 40px rgba(99, 102, 241, 0.2)',
         position: 'relative',
         zIndex: 10
       }}>
 
-        {/* LEFT SIDE: ANIMATED AI RESUME LASER SCANNER */}
-        <div style={{
-          padding: '44px 40px',
-          background: 'linear-gradient(135deg, rgba(6, 78, 59, 0.35) 0%, rgba(15, 23, 42, 0.95) 100%)',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'space-between',
-          position: 'relative',
-          overflow: 'hidden'
-        }}>
-          {/* Top Brand Badge */}
-          <div style={{ position: 'relative', zIndex: 2 }}>
-            <div style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '8px',
-              background: 'rgba(52, 211, 153, 0.15)',
-              border: '1px solid rgba(52, 211, 153, 0.35)',
-              padding: '6px 16px',
-              borderRadius: '30px',
-              color: '#6EE7B7',
-              fontSize: '0.82rem',
-              fontWeight: '700'
-            }}>
-              <Sparkles size={16} className="text-emerald-400" /> AI Resume Analyzer & Career Guidance
-            </div>
-          </div>
-
-          {/* ANIMATED RESUME SHEET DEMO WITH SCANNING BEAM */}
+        {/* Top Brand Tag */}
+        <div style={{ textAlign: 'center', marginBottom: '20px' }}>
           <div style={{
-            position: 'relative',
-            zIndex: 2,
-            margin: '30px 0',
-            background: 'rgba(15, 23, 42, 0.85)',
-            border: '1px solid rgba(52, 211, 153, 0.3)',
-            borderRadius: '20px',
-            padding: '24px',
-            boxShadow: '0 15px 35px rgba(0, 0, 0, 0.6)'
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '8px',
+            background: 'rgba(99, 102, 241, 0.15)',
+            border: '1px solid rgba(99, 102, 241, 0.3)',
+            padding: '6px 16px',
+            borderRadius: '30px',
+            color: '#A5B4FC',
+            fontSize: '0.82rem',
+            fontWeight: '600'
           }}>
-            {/* LASER SCANNING BEAM */}
-            <div style={{
-              position: 'absolute',
-              left: '12px',
-              right: '12px',
-              height: '3px',
-              background: 'linear-gradient(90deg, transparent, #34D399, #6EE7B7, #34D399, transparent)',
-              boxShadow: '0 0 15px #34D399, 0 0 25px #34D399',
-              borderRadius: '2px',
-              zIndex: 10,
-              animation: 'laserScan 3s ease-in-out infinite'
-            }}></div>
-
-            {/* Mock Resume Content */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '18px', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', pb: '14px' }}>
-              <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: 'rgba(52, 211, 153, 0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#34D399' }}>
-                <FileText size={22} />
-              </div>
-              <div>
-                <div style={{ fontSize: '0.95rem', fontWeight: '700', color: '#FFFFFF' }}>Rahul_Sharma_Resume.pdf</div>
-                <div style={{ fontSize: '0.78rem', color: '#94A3B8' }}>AI Scanning & Keyword Extraction...</div>
-              </div>
-            </div>
-
-            {/* Mock Content Lines */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '20px' }}>
-              <div style={{ height: '8px', width: '85%', background: 'rgba(52, 211, 153, 0.3)', borderRadius: '4px' }}></div>
-              <div style={{ height: '8px', width: '95%', background: 'rgba(255, 255, 255, 0.1)', borderRadius: '4px' }}></div>
-              <div style={{ height: '8px', width: '70%', background: 'rgba(52, 211, 153, 0.25)', borderRadius: '4px' }}></div>
-              <div style={{ height: '8px', width: '90%', background: 'rgba(255, 255, 255, 0.1)', borderRadius: '4px' }}></div>
-            </div>
-
-            {/* Live ATS Score Counter Bar */}
-            <div style={{ background: 'rgba(6, 78, 59, 0.4)', borderRadius: '14px', padding: '14px 18px', border: '1px solid rgba(52, 211, 153, 0.3)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <div>
-                <div style={{ fontSize: '0.75rem', color: '#94A3B8', fontWeight: '600', textTransform: 'uppercase' }}>Live ATS Score</div>
-                <div style={{ fontSize: '1.6rem', fontWeight: '800', color: '#34D399' }}>{scanScore}% Match</div>
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '0.75rem', color: '#6EE7B7' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><Check size={14} /> Format Validated</div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><Check size={14} /> Keywords Verified</div>
-              </div>
-            </div>
-          </div>
-
-          {/* Bottom Feature Headline */}
-          <div style={{ position: 'relative', zIndex: 2 }}>
-            <h3 style={{ fontSize: '1.25rem', fontWeight: '700', color: '#FFFFFF', marginBottom: '4px' }}>
-              Instant AI Resume Analysis
-            </h3>
-            <p style={{ color: '#94A3B8', fontSize: '0.85rem' }}>
-              Get instant ATS scores, keyword fixes, and AI-mock interview prep.
-            </p>
+            <Sparkles size={15} className="text-indigo-400" /> AI Resume Analyzer & Career Guidance
           </div>
         </div>
 
-        {/* RIGHT SIDE: CLEAN AUTH FORM */}
-        <div style={{
-          padding: '44px 38px',
-          background: 'rgba(13, 17, 26, 0.98)',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'space-between'
-        }}>
-          <div>
-            {/* Header */}
-            <div style={{ marginBottom: '24px' }}>
-              <h2 style={{ fontSize: '1.85rem', fontWeight: '800', color: '#FFFFFF', marginBottom: '6px', letterSpacing: '-0.02em' }}>
-                {isLogin ? 'Sign In to CareerAI' : 'Create Your Free Account'}
-              </h2>
-              <p style={{ color: '#94A3B8', fontSize: '0.88rem' }}>
-                {isLogin 
-                  ? 'Enter your Gmail credentials to access your resume insights' 
-                  : 'Create an account to analyze resumes and prepare for interviews'}
-              </p>
-            </div>
+        {/* Top Header */}
+        <div style={{ textAlign: 'center', marginBottom: '24px' }}>
+          <h2 style={{ fontSize: '1.8rem', fontWeight: '800', color: '#FFFFFF', marginBottom: '6px', letterSpacing: '-0.02em' }}>
+            {isLogin ? 'Sign In to CareerAI' : 'Create Your Free Account'}
+          </h2>
+          <p style={{ color: '#94A3B8', fontSize: '0.88rem' }}>
+            {isLogin 
+              ? 'Enter your Gmail credentials to access your resume insights' 
+              : 'Create an account to analyze resumes and prepare for interviews'}
+          </p>
+        </div>
 
-            {/* Status Alerts */}
-            {errorMsg && (
-              <div className="alert-error" style={{ marginBottom: '18px' }}>
-                <AlertCircle size={18} style={{ flexShrink: 0 }} />
-                <span>{errorMsg}</span>
-              </div>
-            )}
+        {/* Status Alerts */}
+        {errorMsg && (
+          <div className="alert-error" style={{ marginBottom: '18px' }}>
+            <AlertCircle size={18} style={{ flexShrink: 0 }} />
+            <span>{errorMsg}</span>
+          </div>
+        )}
 
-            {successMsg && (
-              <div className="alert-success" style={{ marginBottom: '18px' }}>
-                <CheckCircle2 size={18} style={{ flexShrink: 0 }} />
-                <span>{successMsg}</span>
-              </div>
-            )}
+        {successMsg && (
+          <div className="alert-success" style={{ marginBottom: '18px' }}>
+            <CheckCircle2 size={18} style={{ flexShrink: 0 }} />
+            <span>{successMsg}</span>
+          </div>
+        )}
 
-            {/* Form Controls */}
-            <form onSubmit={handleSubmit}>
-              {!isLogin && (
-                <>
-                  {/* Full Name */}
-                  <div className="form-group" style={{ marginBottom: '16px' }}>
-                    <label className="form-label" style={{ fontSize: '0.8rem' }}>Full Name</label>
-                    <div style={{ position: 'relative' }}>
-                      <User size={18} color="#34D399" style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)' }} />
-                      <input
-                        type="text"
-                        required
-                        placeholder="Rahul Sharma"
-                        value={fullName}
-                        onChange={(e) => setFullName(e.target.value)}
-                        className="input-field"
-                        style={{ paddingLeft: '46px' }}
-                      />
-                    </div>
-                  </div>
-
-                  {/* Account Role Selector */}
-                  <div className="form-group" style={{ marginBottom: '16px' }}>
-                    <label className="form-label" style={{ fontSize: '0.8rem' }}>Account Type</label>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-                      <button
-                        type="button"
-                        onClick={() => setRole('user')}
-                        style={{
-                          padding: '10px',
-                          borderRadius: '10px',
-                          border: role === 'user' ? '1px solid #34D399' : '1px solid rgba(255, 255, 255, 0.08)',
-                          background: role === 'user' ? 'rgba(16, 185, 129, 0.15)' : 'rgba(15, 23, 42, 0.5)',
-                          color: role === 'user' ? '#FFFFFF' : '#94A3B8',
-                          fontSize: '0.82rem',
-                          fontWeight: '600',
-                          cursor: 'pointer',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          gap: '6px'
-                        }}
-                      >
-                        <UserCheck size={16} color={role === 'user' ? '#6EE7B7' : '#64748B'} />
-                        Job Seeker
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={() => setRole('recruiter')}
-                        style={{
-                          padding: '10px',
-                          borderRadius: '10px',
-                          border: role === 'recruiter' ? '1px solid #34D399' : '1px solid rgba(255, 255, 255, 0.08)',
-                          background: role === 'recruiter' ? 'rgba(16, 185, 129, 0.15)' : 'rgba(15, 23, 42, 0.5)',
-                          color: role === 'recruiter' ? '#FFFFFF' : '#94A3B8',
-                          fontSize: '0.82rem',
-                          fontWeight: '600',
-                          cursor: 'pointer',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          gap: '6px'
-                        }}
-                      >
-                        <Briefcase size={16} color={role === 'recruiter' ? '#6EE7B7' : '#64748B'} />
-                        Recruiter
-                      </button>
-                    </div>
-                  </div>
-                </>
-              )}
-
-              {/* Email Field */}
+        {/* Form Controls */}
+        <form onSubmit={handleSubmit}>
+          {!isLogin && (
+            <>
+              {/* Full Name */}
               <div className="form-group" style={{ marginBottom: '16px' }}>
-                <div className="form-label" style={{ fontSize: '0.8rem' }}>
-                  <span>Gmail Address</span>
-                  {email && (
-                    <span style={{ fontSize: '0.74rem', fontWeight: '600', color: validateGmail(email) ? '#34D399' : '#FBBF24' }}>
-                      {validateGmail(email) ? '✓ Valid @gmail.com' : 'Must end in @gmail.com'}
-                    </span>
-                  )}
-                </div>
+                <label className="form-label" style={{ fontSize: '0.8rem' }}>Full Name</label>
                 <div style={{ position: 'relative' }}>
-                  <Mail size={18} color="#34D399" style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)' }} />
+                  <User size={18} color="#64748B" style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)' }} />
                   <input
-                    type="email"
+                    type="text"
                     required
-                    placeholder="yourname@gmail.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="Rahul Sharma"
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
                     className="input-field"
                     style={{ paddingLeft: '46px' }}
                   />
                 </div>
               </div>
 
-              {/* Password Field */}
+              {/* Account Role Selector */}
               <div className="form-group" style={{ marginBottom: '16px' }}>
-                <div className="form-label" style={{ fontSize: '0.8rem' }}>
-                  <span>Password</span>
-                  {isLogin && (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setForgotEmail(email);
-                        setShowForgotModal(true);
-                      }}
-                      style={{ background: 'none', border: 'none', color: '#6EE7B7', fontSize: '0.8rem', fontWeight: '600', cursor: 'pointer' }}
-                    >
-                      Forgot Password?
-                    </button>
-                  )}
-                </div>
-                <div style={{ position: 'relative' }}>
-                  <Lock size={18} color="#34D399" style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)' }} />
-                  <input
-                    type={showPassword ? "text" : "password"}
-                    required
-                    placeholder="••••••••"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="input-field"
-                    style={{ paddingLeft: '46px', paddingRight: '46px' }}
-                  />
+                <label className="form-label" style={{ fontSize: '0.8rem' }}>Account Type</label>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                   <button
                     type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    style={{ position: 'absolute', right: '16px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: '#34D399', cursor: 'pointer' }}
+                    onClick={() => setRole('user')}
+                    style={{
+                      padding: '10px',
+                      borderRadius: '10px',
+                      border: role === 'user' ? '1px solid #6366F1' : '1px solid rgba(255, 255, 255, 0.08)',
+                      background: role === 'user' ? 'rgba(99, 102, 241, 0.15)' : 'rgba(15, 23, 42, 0.5)',
+                      color: role === 'user' ? '#FFFFFF' : '#94A3B8',
+                      fontSize: '0.82rem',
+                      fontWeight: '600',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '6px'
+                    }}
                   >
-                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                    <UserCheck size={16} color={role === 'user' ? '#818CF8' : '#64748B'} />
+                    Job Seeker
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setRole('recruiter')}
+                    style={{
+                      padding: '10px',
+                      borderRadius: '10px',
+                      border: role === 'recruiter' ? '1px solid #6366F1' : '1px solid rgba(255, 255, 255, 0.08)',
+                      background: role === 'recruiter' ? 'rgba(99, 102, 241, 0.15)' : 'rgba(15, 23, 42, 0.5)',
+                      color: role === 'recruiter' ? '#FFFFFF' : '#94A3B8',
+                      fontSize: '0.82rem',
+                      fontWeight: '600',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '6px'
+                    }}
+                  >
+                    <Briefcase size={16} color={role === 'recruiter' ? '#818CF8' : '#64748B'} />
+                    Recruiter
                   </button>
                 </div>
-
-                {!isLogin && password && (
-                  <div style={{ marginTop: '8px' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.72rem', marginBottom: '4px' }}>
-                      <span style={{ color: '#94A3B8' }}>Strength:</span>
-                      <span style={{ fontWeight: '700', color: pwdStrength.textColor }}>{pwdStrength.label}</span>
-                    </div>
-                    <div style={{ height: '4px', background: 'rgba(255, 255, 255, 0.08)', borderRadius: '2px', overflow: 'hidden' }}>
-                      <div style={{ height: '100%', width: `${pwdStrength.score}%`, background: pwdStrength.color, transition: 'all 0.3s' }}></div>
-                    </div>
-                  </div>
-                )}
               </div>
+            </>
+          )}
 
-              {/* Confirm Password (Sign Up Only) */}
-              {!isLogin && (
-                <div className="form-group" style={{ marginBottom: '16px' }}>
-                  <label className="form-label" style={{ fontSize: '0.8rem' }}>Confirm Password</label>
-                  <div style={{ position: 'relative' }}>
-                    <Lock size={18} color="#34D399" style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)' }} />
-                    <input
-                      type={showConfirmPassword ? "text" : "password"}
-                      required
-                      placeholder="••••••••"
-                      value={confirmPassword}
-                      onChange={(e) => setConfirmPassword(e.target.value)}
-                      className="input-field"
-                      style={{ paddingLeft: '46px', paddingRight: '46px' }}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                      style={{ position: 'absolute', right: '16px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: '#34D399', cursor: 'pointer' }}
-                    >
-                      {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                    </button>
-                  </div>
-                </div>
+          {/* Email Field */}
+          <div className="form-group" style={{ marginBottom: '16px' }}>
+            <div className="form-label" style={{ fontSize: '0.8rem' }}>
+              <span>Gmail Address</span>
+              {email && (
+                <span style={{ fontSize: '0.74rem', fontWeight: '600', color: validateGmail(email) ? '#34D399' : '#FBBF24' }}>
+                  {validateGmail(email) ? '✓ Valid @gmail.com' : 'Must end in @gmail.com'}
+                </span>
               )}
-
-              {/* Remember Me / Terms Checkbox */}
-              <div style={{ marginBottom: '20px' }}>
-                {isLogin ? (
-                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '0.82rem', color: '#CBD5E1' }}>
-                    <input type="checkbox" checked={rememberMe} onChange={(e) => setRememberMe(e.target.checked)} style={{ accentColor: '#34D399' }} />
-                    Remember me on this device
-                  </label>
-                ) : (
-                  <label style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', cursor: 'pointer', fontSize: '0.78rem', color: '#94A3B8' }}>
-                    <input type="checkbox" checked={acceptTerms} onChange={(e) => setAcceptTerms(e.target.checked)} style={{ marginTop: '2px', accentColor: '#34D399' }} />
-                    I accept the Terms of Service & Privacy Policy
-                  </label>
-                )}
-              </div>
-
-              {/* Action Button */}
-              <button
-                type="submit"
-                disabled={loading}
-                className="btn-primary"
-                style={{
-                  width: '100%',
-                  padding: '13px',
-                  fontSize: '0.95rem',
-                  background: 'linear-gradient(135deg, #059669 0%, #10B981 100%)',
-                  boxShadow: '0 0 20px rgba(16, 185, 129, 0.4)'
-                }}
-              >
-                {loading ? 'Authenticating...' : (
-                  <>
-                    <span>{isLogin ? 'Sign In to Dashboard' : 'Create Free Account'}</span>
-                    <ArrowRight size={18} />
-                  </>
-                )}
-              </button>
-            </form>
-          </div>
-
-          {/* BOTTOM TOGGLE LINK (SIGN IN <-> SIGN UP AT THE BOTTOM LIKE BEFORE) */}
-          <div style={{
-            textAlign: 'center',
-            paddingTop: '16px',
-            marginTop: '16px',
-            borderTop: '1px solid rgba(255, 255, 255, 0.08)',
-            color: '#94A3B8',
-            fontSize: '0.88rem'
-          }}>
-            {isLogin ? (
-              <span>
-                Don't have an account?{' '}
-                <button
-                  type="button"
-                  onClick={() => toggleTab(false)}
-                  style={{
-                    background: 'none',
-                    border: 'none',
-                    color: '#6EE7B7',
-                    fontWeight: '700',
-                    cursor: 'pointer',
-                    padding: 0,
-                    fontSize: '0.88rem'
-                  }}
-                >
-                  Sign up
-                </button>
-              </span>
-            ) : (
-              <span>
-                Already have an account?{' '}
-                <button
-                  type="button"
-                  onClick={() => toggleTab(true)}
-                  style={{
-                    background: 'none',
-                    border: 'none',
-                    color: '#6EE7B7',
-                    fontWeight: '700',
-                    cursor: 'pointer',
-                    padding: 0,
-                    fontSize: '0.88rem'
-                  }}
-                >
-                  Sign in
-                </button>
-              </span>
-            )}
-
-            {/* Footer Security Guarantee */}
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', marginTop: '12px', color: '#64748B', fontSize: '0.76rem' }}>
-              <ShieldCheck size={14} color="#10B981" />
-              <span>Secure 256-Bit Encrypted Authentication</span>
+            </div>
+            <div style={{ position: 'relative' }}>
+              <Mail size={18} color="#64748B" style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)' }} />
+              <input
+                type="email"
+                required
+                placeholder="yourname@gmail.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="input-field"
+                style={{ paddingLeft: '46px' }}
+              />
             </div>
           </div>
+
+          {/* Password Field */}
+          <div className="form-group" style={{ marginBottom: '16px' }}>
+            <div className="form-label" style={{ fontSize: '0.8rem' }}>
+              <span>Password</span>
+              {isLogin && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setForgotEmail(email);
+                    setShowForgotModal(true);
+                  }}
+                  style={{ background: 'none', border: 'none', color: '#818CF8', fontSize: '0.8rem', fontWeight: '600', cursor: 'pointer' }}
+                >
+                  Forgot Password?
+                </button>
+              )}
+            </div>
+            <div style={{ position: 'relative' }}>
+              <Lock size={18} color="#64748B" style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)' }} />
+              <input
+                type={showPassword ? "text" : "password"}
+                required
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="input-field"
+                style={{ paddingLeft: '46px', paddingRight: '46px' }}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                style={{ position: 'absolute', right: '16px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: '#64748B', cursor: 'pointer' }}
+              >
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
+
+            {!isLogin && password && (
+              <div style={{ marginTop: '8px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.72rem', marginBottom: '4px' }}>
+                  <span style={{ color: '#94A3B8' }}>Strength:</span>
+                  <span style={{ fontWeight: '700', color: pwdStrength.textColor }}>{pwdStrength.label}</span>
+                </div>
+                <div style={{ height: '4px', background: 'rgba(255, 255, 255, 0.08)', borderRadius: '2px', overflow: 'hidden' }}>
+                  <div style={{ height: '100%', width: `${pwdStrength.score}%`, background: pwdStrength.color, transition: 'all 0.3s' }}></div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Confirm Password (Sign Up Only) */}
+          {!isLogin && (
+            <div className="form-group" style={{ marginBottom: '16px' }}>
+              <label className="form-label" style={{ fontSize: '0.8rem' }}>Confirm Password</label>
+              <div style={{ position: 'relative' }}>
+                <Lock size={18} color="#64748B" style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)' }} />
+                <input
+                  type={showConfirmPassword ? "text" : "password"}
+                  required
+                  placeholder="••••••••"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  className="input-field"
+                  style={{ paddingLeft: '46px', paddingRight: '46px' }}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  style={{ position: 'absolute', right: '16px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: '#64748B', cursor: 'pointer' }}
+                >
+                  {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Remember Me / Terms Checkbox */}
+          <div style={{ marginBottom: '20px' }}>
+            {isLogin ? (
+              <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '0.82rem', color: '#CBD5E1' }}>
+                <input type="checkbox" checked={rememberMe} onChange={(e) => setRememberMe(e.target.checked)} style={{ accentColor: '#6366F1' }} />
+                Remember me on this device
+              </label>
+            ) : (
+              <label style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', cursor: 'pointer', fontSize: '0.78rem', color: '#94A3B8' }}>
+                <input type="checkbox" checked={acceptTerms} onChange={(e) => setAcceptTerms(e.target.checked)} style={{ marginTop: '2px', accentColor: '#6366F1' }} />
+                I accept the Terms of Service & Privacy Policy
+              </label>
+            )}
+          </div>
+
+          {/* Action Button */}
+          <button
+            type="submit"
+            disabled={loading}
+            className="btn-primary"
+            style={{ width: '100%', padding: '13px', fontSize: '0.95rem', marginBottom: '20px' }}
+          >
+            {loading ? 'Authenticating...' : (
+              <>
+                <span>{isLogin ? 'Sign In to Dashboard' : 'Create Free Account'}</span>
+                <ArrowRight size={18} />
+              </>
+            )}
+          </button>
+        </form>
+
+        {/* BOTTOM FOOTER LINK TOGGLE (SIGN IN <-> SIGN UP AT THE BOTTOM) */}
+        <div style={{
+          textAlign: 'center',
+          paddingTop: '16px',
+          borderTop: '1px solid rgba(255, 255, 255, 0.08)',
+          color: '#94A3B8',
+          fontSize: '0.88rem'
+        }}>
+          {isLogin ? (
+            <span>
+              Don't have an account?{' '}
+              <button
+                type="button"
+                onClick={() => toggleTab(false)}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: '#818CF8',
+                  fontWeight: '700',
+                  cursor: 'pointer',
+                  padding: 0,
+                  fontSize: '0.88rem'
+                }}
+              >
+                Sign up
+              </button>
+            </span>
+          ) : (
+            <span>
+              Already have an account?{' '}
+              <button
+                type="button"
+                onClick={() => toggleTab(true)}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: '#818CF8',
+                  fontWeight: '700',
+                  cursor: 'pointer',
+                  padding: 0,
+                  fontSize: '0.88rem'
+                }}
+              >
+                Sign in
+              </button>
+            </span>
+          )}
+        </div>
+
+        {/* Footer Guarantee */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', marginTop: '16px', color: '#64748B', fontSize: '0.78rem' }}>
+          <ShieldCheck size={15} color="#10B981" />
+          <span>Secure 256-Bit Encrypted Authentication</span>
         </div>
 
       </div>
@@ -635,7 +589,7 @@ export default function AuthPage({ onAuthSuccess }) {
             </button>
 
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
-              <div style={{ width: '42px', height: '42px', borderRadius: '12px', background: 'rgba(16, 185, 129, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#34D399' }}>
+              <div style={{ width: '42px', height: '42px', borderRadius: '12px', background: 'rgba(99, 102, 241, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#818CF8' }}>
                 <KeyRound size={22} />
               </div>
               <div>
@@ -666,7 +620,7 @@ export default function AuthPage({ onAuthSuccess }) {
                 <div className="form-group" style={{ marginBottom: '20px' }}>
                   <label className="form-label">Gmail Address</label>
                   <div style={{ position: 'relative' }}>
-                    <Mail size={18} color="#34D399" style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)' }} />
+                    <Mail size={18} color="#64748B" style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)' }} />
                     <input
                       type="email"
                       required
