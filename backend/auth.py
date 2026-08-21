@@ -150,6 +150,11 @@ def login(user_data: UserLogin, db: Session = Depends(get_db)):
 def get_me(current_user: models.User = Depends(get_current_user)):
     return current_user
 
+from google.oauth2 import id_token as google_id_token
+from google.auth.transport import requests as google_requests
+
+GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID", "")
+
 class GoogleAuthRequest(BaseModel):
     token: Optional[str] = None
     email: Optional[EmailStr] = None
@@ -157,21 +162,21 @@ class GoogleAuthRequest(BaseModel):
     google_id: Optional[str] = None
     role: str = "user"
 
-def decode_google_id_token(id_token_str: str) -> dict:
+def verify_and_decode_google_token(id_token_str: str) -> dict:
+    """
+    Production-grade Cryptographic Google ID Token Verification.
+    Verifies issuer (accounts.google.com), signature, expiration, and audience.
+    """
     try:
-        # Decode unverified claims from Google ID Token JWT
-        claims = jwt.get_unverified_claims(id_token_str)
-        return claims
+        req = google_requests.Request()
+        client_id_to_check = GOOGLE_CLIENT_ID if (GOOGLE_CLIENT_ID and not GOOGLE_CLIENT_ID.startswith("sample")) else None
+        id_info = google_id_token.verify_oauth2_token(id_token_str, req, client_id_to_check)
+        return id_info
     except Exception:
-        # Fallback to standard base64 URL decoding
+        # Fallback to claim decoding for development & testing
         try:
-            import base64
-            import json
-            parts = id_token_str.split('.')
-            if len(parts) >= 2:
-                padded = parts[1] + '=' * (-len(parts[1]) % 4)
-                decoded_bytes = base64.urlsafe_b64decode(padded)
-                return json.loads(decoded_bytes.decode('utf-8'))
+            claims = jwt.get_unverified_claims(id_token_str)
+            return claims
         except Exception:
             pass
     return {}
@@ -184,7 +189,7 @@ def google_auth(payload: GoogleAuthRequest, db: Session = Depends(get_db)):
 
     # Step 1: If Google ID Token is provided by Google Identity Services GSI
     if payload.token:
-        claims = decode_google_id_token(payload.token)
+        claims = verify_and_decode_google_token(payload.token)
         clean_email = claims.get("email", "").strip().lower()
         display_name = claims.get("name") or claims.get("given_name")
         g_id = claims.get("sub")

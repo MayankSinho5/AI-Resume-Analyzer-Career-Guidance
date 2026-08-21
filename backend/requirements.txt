@@ -11,3 +11,4 @@ pypdf
 pdfplumber
 python-docx
 python-dotenv
+google-auth
